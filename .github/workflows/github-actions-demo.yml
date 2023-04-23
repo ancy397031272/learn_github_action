@@ -32,3 +32,5 @@ jobs:
           pwd
           cmake ..
           make -j11
+          make pip_package
+
