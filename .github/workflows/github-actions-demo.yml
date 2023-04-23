@@ -25,7 +25,7 @@ jobs:
       - name: List files in the repository
         run: |
           ls ${{ github.workspace }}
-      - run:
+      - run:  |
           cd utils
           sh ./install_deps_ubuntu.sh
           cd ..
