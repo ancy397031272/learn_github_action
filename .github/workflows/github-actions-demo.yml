@@ -26,7 +26,7 @@ jobs:
         run: |
           ls ${{ github.workspace }}
       - run:  |
-          cd utils
+          cd util
           sh ./install_deps_ubuntu.sh
           cd ..
           mkdir build
