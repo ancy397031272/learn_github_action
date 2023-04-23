@@ -26,4 +26,5 @@ jobs:
         run: |
           ls ${{ github.workspace }}
       - run: mkdir build && cd build
+      - run: pwd
       - run: make -j11
