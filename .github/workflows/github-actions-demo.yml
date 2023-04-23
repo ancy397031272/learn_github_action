@@ -34,3 +34,19 @@ jobs:
           make -j11
           make pip_package
 
+  Windows-Build:
+    runs-on: windowns-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: List files in the repository
+        run: |
+          ls ${{ github.workspace }}
+      - run:  |
+          source util/install_deps_ubuntu.sh
+          mkdir build
+          cd build
+          pwd
+          cmake ..
+          make -j11
+          make pip_package
