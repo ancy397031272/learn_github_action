@@ -25,8 +25,9 @@ jobs:
       - name: List files in the repository
         run: |
           ls ${{ github.workspace }}
-      - run: mkdir build
-      - run: cd build
-      - run: pwd
-      - run: cmake ..
-      - run: make -j11
+      - run: |
+          mkdir build
+          cd build
+          pwd
+          cmake ..
+          make -j11
