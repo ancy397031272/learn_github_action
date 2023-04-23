@@ -27,4 +27,4 @@ jobs:
           ls ${{ github.workspace }}
       - run: mkdir build && cd build
       - run: pwd
-      - run: make -j11
+      - run: cmake .. && make -j11
