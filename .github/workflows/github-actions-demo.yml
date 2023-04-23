@@ -43,7 +43,6 @@ jobs:
         run: |
           ls ${{ github.workspace }}
       - run:  |
-          source util/install_deps_ubuntu.sh
           mkdir build
           cd build
           pwd
