@@ -14,6 +14,7 @@
 
 #include "open3d/geometry/Geometry3D.h"
 #include "open3d/geometry/KDTreeSearchParam.h"
+#include "open3d/geometry/KDTreeFlann.h"
 #include "open3d/utility/Optional.h"
 
 namespace open3d {
@@ -178,7 +179,33 @@ public:
     /// \param num_samples Number of points to be sampled.
     std::shared_ptr<PointCloud> FarthestPointDownSample(
             size_t num_samples) const;
-
+    /// \brief Function to downsample input pointcloud into output pointcloud
+    /// spatially.
+    ///
+    /// The sample is performed by selecting the index of the points
+    /// in the pointcloud that the min distance to each other less than
+    /// min_distance.
+    ///
+    /// \param min_distance Min distance of every point
+    /// \param print_progress Whether to print the progress bar.
+    /// number of points in the pointcloud.
+    std::tuple<std::shared_ptr<PointCloud>, std::vector<size_t>>
+    SpatialDownSample(double min_distance, bool print_progress = false) const;
+    /// \brief Function to downsample input pointcloud into output pointcloud
+    /// spatially.
+    ///
+    /// The sample is performed by selecting the index of the points
+    /// in the pointcloud that the min distance to each other less than
+    /// min_distance.
+    ///
+    /// \param min_distance Min distance of every point
+    /// \param kdtree Kdtree
+    /// \param print_progress Whether to print the progress bar.
+    /// number of points in the pointcloud.
+    std::tuple<std::shared_ptr<PointCloud>, std::vector<size_t>>
+    SpatialDownSample(double min_distance,
+                      KDTreeFlann &kdtree,
+                      bool print_progress = false) const;
     /// \brief Function to crop pointcloud into output pointcloud
     ///
     /// All points with coordinates outside the bounding box \p bbox are
@@ -445,6 +472,17 @@ public:
     /// \param voxel_grid The input VoxelGrid.
     static std::shared_ptr<PointCloud> CreateFromVoxelGrid(
             const VoxelGrid &voxel_grid);
+
+    /// \brief Detect boundary from point clouds
+
+    /// \param param nearest neighbor search parameter
+    /// \param angle_threshold angle threshold to decide if a point is a
+    /// boundary point
+
+    std::tuple<std::shared_ptr<PointCloud>, std::vector<size_t>>
+    DetectBoundaryPoints(
+            const KDTreeSearchParam &param = KDTreeSearchParamKNN(),
+            double angle_threshold = 90.0);
 
 public:
     /// Points coordinates.

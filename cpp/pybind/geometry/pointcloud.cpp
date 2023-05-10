@@ -84,6 +84,30 @@ void pybind_pointcloud(py::module &m) {
                  "by selecting the farthest point from previous selected "
                  "points iteratively.",
                  "num_samples"_a)
+            .def("spatial_down_sample",
+                 (std::tuple<std::shared_ptr<PointCloud>, std::vector<size_t>>(
+                         PointCloud::*)(double, bool) const) &
+                         PointCloud::SpatialDownSample,
+                 py::call_guard<py::gil_scoped_release>(),
+                 "Function to downsample input pointcloud into output "
+                 "pointcloud"
+                 "spatially."
+                 "The sample is performed by selecting the index of the points"
+                 "in the pointcloud that the min distance to each other less "
+                 "than min_distance.",
+                 "min_distance"_a, "print_progress"_a = false)
+            .def("spatial_down_sample",
+                 (std::tuple<std::shared_ptr<PointCloud>, std::vector<size_t>>(
+                         PointCloud::*)(double, KDTreeFlann &, bool) const) &
+                         PointCloud::SpatialDownSample,
+                 py::call_guard<py::gil_scoped_release>(),
+                 "Function to downsample input pointcloud into output "
+                 "pointcloud"
+                 "spatially."
+                 "The sample is performed by selecting the index of the points"
+                 "in the pointcloud that the min distance to each other less "
+                 "than min_distance.",
+                 "min_distance"_a, "kdtree"_a, "print_progress"_a = false)
             .def("crop",
                  (std::shared_ptr<PointCloud>(PointCloud::*)(
                          const AxisAlignedBoundingBox &) const) &
@@ -156,6 +180,10 @@ void pybind_pointcloud(py::module &m) {
                  "Function to compute the covariance matrix for each point "
                  "in the point cloud",
                  "search_param"_a = KDTreeSearchParamKNN())
+            .def("detect_boundary_points", &PointCloud::DetectBoundaryPoints,
+                 "Function to detect boundary points in the point cloud",
+                 "search_param"_a = KDTreeSearchParamKNN(),
+                 "angle_threshold"_a = 90.0)
             .def("compute_mean_and_covariance",
                  &PointCloud::ComputeMeanAndCovariance,
                  "Function to compute the mean and covariance matrix of a "
@@ -256,7 +284,46 @@ camera. Given depth value d at (u, v) image coordinate, the corresponding 3d poi
             .def_readwrite("covariances", &PointCloud::covariances_,
                            "``float64`` array of shape ``(num_points, 3, 3)``, "
                            "use ``numpy.asarray()`` to access data: Points "
-                           "covariances.");
+                           "covariances.")
+            .def(py::pickle(
+                    [](const PointCloud &pcd) {  // __getstate__
+                        py::object np = py::module::import("numpy");
+                        py::object points = np.attr("asarray")(pcd.points_);
+                        py::object normals = np.attr("asarray")(pcd.normals_);
+                        py::object colors = np.attr("asarray")(pcd.colors_);
+                        py::object covariances =
+                                np.attr("asarray")(pcd.covariances_);
+                        return py::make_tuple(points, normals, colors,
+                                              covariances);
+                    },
+                    [](py::tuple t) {  // __setstate__
+                        if (t.size() != 4)
+                            throw std::runtime_error("Invalid state!");
+
+                        /* Create a new C++ instance */
+                        PointCloud pcd;
+
+                        py::object o3d = py::module::import("open3d");
+                        /* Assign any additional state */
+                        pcd.points_ =
+                                o3d.attr("utility")
+                                        .attr("Vector3dVector")(t[0])
+                                        .cast<std::vector<Eigen::Vector3d>>();
+                        pcd.normals_ =
+                                o3d.attr("utility")
+                                        .attr("Vector3dVector")(t[1])
+                                        .cast<std::vector<Eigen::Vector3d>>();
+                        pcd.colors_ =
+                                o3d.attr("utility")
+                                        .attr("Vector3dVector")(t[2])
+                                        .cast<std::vector<Eigen::Vector3d>>();
+                        pcd.covariances_ =
+                                o3d.attr("utility")
+                                        .attr("Matrix3dVector")(t[3])
+                                        .cast<std::vector<Eigen::Matrix3d>>();
+
+                        return pcd;
+                    }));
     docstring::ClassMethodDocInject(m, "PointCloud", "has_colors");
     docstring::ClassMethodDocInject(m, "PointCloud", "has_normals");
     docstring::ClassMethodDocInject(m, "PointCloud", "has_points");

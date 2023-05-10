@@ -12,6 +12,7 @@
 #include "pybind/pipelines/integration/integration.h"
 #include "pybind/pipelines/odometry/odometry.h"
 #include "pybind/pipelines/registration/registration.h"
+#include "pybind/pipelines/pose_estimation/pose_estimation.h"
 
 namespace open3d {
 namespace pipelines {
@@ -22,6 +23,7 @@ void pybind_pipelines(py::module& m) {
     integration::pybind_integration(m_pipelines);
     registration::pybind_registration(m_pipelines);
     odometry::pybind_odometry(m_pipelines);
+    pose_estimation::pybind_pose_estimation(m_pipelines);
 }
 
 }  // namespace pipelines

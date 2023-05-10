@@ -303,6 +303,7 @@ RegistrationResult RegistrationRANSACBasedOnFeatureMatching(
             ransac_n, checkers, criteria);
 }
 
+
 Eigen::Matrix6d GetInformationMatrixFromPointClouds(
         const geometry::PointCloud &source,
         const geometry::PointCloud &target,
